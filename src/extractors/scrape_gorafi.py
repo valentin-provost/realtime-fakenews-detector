@@ -7,8 +7,6 @@ import json
 from kafka import KafkaProducer
 
 # --- Configuration Kafka ---
-# On configure le producteur pour qu'il se connecte à notre conteneur Kafka sur le port 9092
-# et on lui dit de transformer automatiquement nos dictionnaires Python en format JSON
 try:
     producer = KafkaProducer(
         bootstrap_servers=['localhost:9092'],
@@ -79,18 +77,16 @@ if __name__ == "__main__":
                     data = scrape_gorafi_article(lien)
                     
                     if data:
-                        # ENVOI VERS KAFKA : On publie le dictionnaire dans le topic
                         producer.send(TOPIC_NAME, value=data)
                         print(f"Envoyé à Kafka : {data['title']}")
                         
                     articles_deja_vus.add(lien)
                     time.sleep(1) 
             
-            # On force l'envoi des messages en attente
             producer.flush()
             
-            print("⏳ En attente de nouveaux articles (pause 60s)...")
-            time.sleep(60)
+            print("En attente de nouveaux articles (pause de 1 heure)...")
+            time.sleep(3600)
             
     except KeyboardInterrupt:
         print("\nArrêt manuel du collecteur.")
